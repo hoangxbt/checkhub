@@ -1,5 +1,5 @@
 // src/pages/cron-parser.js
-import parser from 'cron-parser';
+import { CronExpressionParser } from 'cron-parser';
 import cronstrue from 'cronstrue';
 
 export function renderCronParser() {
@@ -78,7 +78,7 @@ export function renderCronParser() {
 
         // Calculate next 5 times
         const opts = { currentDate: new Date() };
-        const interval = parser.parseExpression(val, opts);
+        const interval = CronExpressionParser.parse(val, opts);
         
         let html = '';
         for (let i = 0; i < 5; i++) {
