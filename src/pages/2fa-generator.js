@@ -11,18 +11,18 @@ export function render2FAGenerator() {
       <p class="tool-subtitle">Generate Time-based One-Time Passwords (TOTP) from your secret key.</p>
     </div>
 
-    <div class="grid grid-2">
+    <div class="grid">
       <div class="card">
         <h3 class="card-title">Setup Key</h3>
         <div class="input-group">
           <label>Secret Key or URI</label>
-          <input type="text" id="fa-secret" placeholder="e.g. JBSWY3DPEHPK3PXP" autocomplete="off" spellcheck="false" class="font-mono">
+          <input type="text" id="fa-secret" placeholder="JBSWY3DPEHPK3PXP" autocomplete="off" spellcheck="false" style="font-family: var(--font-mono); font-size: 1.1rem; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box;">
         </div>
-        <p class="text-sm text-muted mt-4">Standard Base32 secret keys or otpauth:// URIs are supported.</p>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 16px;">Standard Base32 secret keys or otpauth:// URIs are supported.</p>
       </div>
 
-      <div class="card flex flex-col items-center justify-center text-center">
-        <h3 class="card-title w-full text-left">Your Code</h3>
+      <div class="card" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <h3 class="card-title" style="align-self: flex-start;">Your Code</h3>
         
         <div id="totp-display" class="mt-4 mb-4" style="font-size: 3rem; font-weight: 700; letter-spacing: 0.1em; font-variant-numeric: tabular-nums; display: flex; align-items: center; justify-content: center; height: 80px; color: var(--text-color);">
           --- ---
@@ -35,7 +35,7 @@ export function render2FAGenerator() {
           <div id="totp-timer" style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-muted); width: 30px; text-align: right;">30s</div>
         </div>
         
-        <button id="copy-totp" class="btn btn-primary mt-6 w-full" style="display: none;">Copy Code</button>
+        <button id="copy-totp" class="btn btn-primary" style="display: none; margin-top: 24px; width: 100%;">Copy Code</button>
       </div>
     </div>
   `;
