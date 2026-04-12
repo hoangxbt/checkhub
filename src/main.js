@@ -40,6 +40,9 @@ import { renderJwtDecoder } from './pages/jwt-decoder.js';
 import { renderHashGenerator } from './pages/hash-generator.js';
 import { renderUuidGenerator } from './pages/uuid-generator.js';
 import { renderTimestampConverter } from './pages/timestamp-converter.js';
+import { renderMacLookup } from './pages/mac-lookup.js';
+import { renderSubnetCalc } from './pages/subnet-calc.js';
+import { renderPortScanner } from './pages/port-scanner.js';
 
 initTheme();
 const router = new Router();
@@ -83,7 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
     .add('/jwt-decoder', renderJwtDecoder)
     .add('/hash-generator', renderHashGenerator)
     .add('/uuid-generator', renderUuidGenerator)
-    .add('/timestamp', renderTimestampConverter);
+    .add('/timestamp', renderTimestampConverter)
+    .add('/mac-lookup', renderMacLookup)
+    .add('/subnet-calc', renderSubnetCalc)
+    .add('/port-scanner', renderPortScanner);
 
   router.init('#main-content');
   interceptLinks(router);

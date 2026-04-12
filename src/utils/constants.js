@@ -30,6 +30,9 @@ export const TOOLS = [
   { id: 'hash-generator', name: 'Hash Generator', path: '/hash-generator', icon: '#️⃣', category: 'Utility Tools', description: 'Generate MD5, SHA-1, SHA-256, SHA-512 hashes' },
   { id: 'uuid-generator', name: 'UUID Generator', path: '/uuid-generator', icon: '🆔', category: 'Utility Tools', description: 'Generate and validate UUIDs (v4)' },
   { id: 'timestamp', name: 'Unix Timestamp', path: '/timestamp', icon: '⏰', category: 'Utility Tools', description: 'Convert between Unix timestamps and dates' },
+  { id: 'mac-lookup', name: 'MAC Address Lookup', path: '/mac-lookup', icon: '💻', category: 'Network Tools', description: 'Find device manufacturer (OUI) by MAC Address' },
+  { id: 'subnet-calc', name: 'IP Subnet Calculator', path: '/subnet-calc', icon: '🧮', category: 'Network Tools', description: 'Calculate IP ranges, networks, and broadcast addresses' },
+  { id: 'port-scanner', name: 'Port Scanner', path: '/port-scanner', icon: '🚪', category: 'Network Tools', description: 'Scan public IP/Domain for open network ports' },
 ];
 
 export const RECORD_TYPES = [
