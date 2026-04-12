@@ -35,6 +35,11 @@ import { render2FAGenerator } from './pages/2fa-generator.js';
 import { renderBase64 } from './pages/base64.js';
 import { renderUrlEncode } from './pages/url-encode.js';
 import { renderJsonFormatter } from './pages/json-formatter.js';
+import { renderRegexTester } from './pages/regex-tester.js';
+import { renderJwtDecoder } from './pages/jwt-decoder.js';
+import { renderHashGenerator } from './pages/hash-generator.js';
+import { renderUuidGenerator } from './pages/uuid-generator.js';
+import { renderTimestampConverter } from './pages/timestamp-converter.js';
 
 initTheme();
 const router = new Router();
@@ -73,7 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
     .add('/2fa', render2FAGenerator)
     .add('/base64', renderBase64)
     .add('/url-encode', renderUrlEncode)
-    .add('/json-formatter', renderJsonFormatter);
+    .add('/json-formatter', renderJsonFormatter)
+    .add('/regex-tester', renderRegexTester)
+    .add('/jwt-decoder', renderJwtDecoder)
+    .add('/hash-generator', renderHashGenerator)
+    .add('/uuid-generator', renderUuidGenerator)
+    .add('/timestamp', renderTimestampConverter);
 
   router.init('#main-content');
   interceptLinks(router);

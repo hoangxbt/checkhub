@@ -25,6 +25,11 @@ export const TOOLS = [
   { id: 'base64', name: 'Base64 Encode/Decode', path: '/base64', icon: '🔤', category: 'Utility Tools', description: 'Encode or decode Base64 strings' },
   { id: 'url-encode', name: 'URL Encode/Decode', path: '/url-encode', icon: '🔗', category: 'Utility Tools', description: 'Encode or decode URL strings' },
   { id: 'json-formatter', name: 'JSON Formatter', path: '/json-formatter', icon: '📐', category: 'Utility Tools', description: 'Format, validate, and minify JSON' },
+  { id: 'regex-tester', name: 'Regex Tester', path: '/regex-tester', icon: '🧩', category: 'Utility Tools', description: 'Test and debug regular expressions in real-time' },
+  { id: 'jwt-decoder', name: 'JWT Decoder', path: '/jwt-decoder', icon: '🔓', category: 'Utility Tools', description: 'Decode and inspect JSON Web Tokens' },
+  { id: 'hash-generator', name: 'Hash Generator', path: '/hash-generator', icon: '#️⃣', category: 'Utility Tools', description: 'Generate MD5, SHA-1, SHA-256, SHA-512 hashes' },
+  { id: 'uuid-generator', name: 'UUID Generator', path: '/uuid-generator', icon: '🆔', category: 'Utility Tools', description: 'Generate and validate UUIDs (v4)' },
+  { id: 'timestamp', name: 'Unix Timestamp', path: '/timestamp', icon: '⏰', category: 'Utility Tools', description: 'Convert between Unix timestamps and dates' },
 ];
 
 export const RECORD_TYPES = [
