@@ -22,11 +22,52 @@ export class Router {
     const toolMeta = Object.values(TOOLS).find(t => t.path === path);
     if (toolMeta) {
       const pageTitle = path === '/' ? 'CheckHub — Free DNS Checker & Network Tools' : `${toolMeta.name} — CheckHub`;
+      const pageUrl = `https://checkhub.org${path === '/' ? '' : path}`;
+      const pageDesc = path === '/' ? 'Free DNS Propagation Checker, WHOIS, SSL Checker, and 29+ network diagnostic tools. Fast, modern, no ads, no tracking.' : `${toolMeta.description}. Free online tool by CheckHub.`;
+
+      // Title & Meta
       document.title = pageTitle;
-      document.querySelector('meta[name="description"]')?.setAttribute('content', toolMeta.description);
+      document.querySelector('meta[name="description"]')?.setAttribute('content', pageDesc);
       document.querySelector('meta[property="og:title"]')?.setAttribute('content', pageTitle);
-      document.querySelector('meta[property="og:description"]')?.setAttribute('content', toolMeta.description);
-      document.querySelector('meta[property="og:url"]')?.setAttribute('content', `https://checkhub.org${path}`);
+      document.querySelector('meta[property="og:description"]')?.setAttribute('content', pageDesc);
+      document.querySelector('meta[property="og:url"]')?.setAttribute('content', pageUrl);
+      document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', pageTitle);
+      document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', pageDesc);
+
+      // Canonical URL
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (canonical) canonical.setAttribute('href', pageUrl);
+
+      // JSON-LD Structured Data
+      let ldScript = document.querySelector('#json-ld-seo');
+      if (!ldScript) {
+        ldScript = document.createElement('script');
+        ldScript.type = 'application/ld+json';
+        ldScript.id = 'json-ld-seo';
+        document.head.appendChild(ldScript);
+      }
+      const structuredData = path === '/' ? {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        'name': 'CheckHub',
+        'url': 'https://checkhub.org',
+        'description': 'Free DNS Propagation Checker and 29+ network diagnostic tools.',
+        'applicationCategory': 'UtilityApplication',
+        'operatingSystem': 'All',
+        'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' },
+        'author': { '@type': 'Organization', 'name': 'CheckHub' }
+      } : {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        'name': toolMeta.name,
+        'url': pageUrl,
+        'description': toolMeta.description,
+        'applicationCategory': 'UtilityApplication',
+        'operatingSystem': 'All',
+        'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' },
+        'isPartOf': { '@type': 'WebSite', 'name': 'CheckHub', 'url': 'https://checkhub.org' }
+      };
+      ldScript.textContent = JSON.stringify(structuredData);
     }
 
     let handler = this.routes.get(path);
