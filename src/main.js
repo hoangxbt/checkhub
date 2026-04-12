@@ -43,6 +43,10 @@ import { renderTimestampConverter } from './pages/timestamp-converter.js';
 import { renderMacLookup } from './pages/mac-lookup.js';
 import { renderSubnetCalc } from './pages/subnet-calc.js';
 import { renderPortScanner } from './pages/port-scanner.js';
+import { renderPingTest } from './pages/ping-test.js';
+import { renderCronParser } from './pages/cron-parser.js';
+import { renderSslDecoder } from './pages/ssl-decoder.js';
+import { renderDiffChecker } from './pages/diff-checker.js';
 
 initTheme();
 const router = new Router();
@@ -89,7 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
     .add('/timestamp', renderTimestampConverter)
     .add('/mac-lookup', renderMacLookup)
     .add('/subnet-calc', renderSubnetCalc)
-    .add('/port-scanner', renderPortScanner);
+    .add('/port-scanner', renderPortScanner)
+    .add('/ping-test', renderPingTest)
+    .add('/cron-parser', renderCronParser)
+    .add('/ssl-decoder', renderSslDecoder)
+    .add('/diff-checker', renderDiffChecker);
 
   router.init('#main-content');
   interceptLinks(router);

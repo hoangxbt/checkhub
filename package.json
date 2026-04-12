@@ -20,6 +20,9 @@
     "vite": "^8.0.8"
   },
   "dependencies": {
+    "cron-parser": "^5.5.0",
+    "cronstrue": "^3.14.0",
+    "diff": "^8.0.4",
     "otpauth": "^9.5.0"
   }
 }

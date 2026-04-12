@@ -33,6 +33,10 @@ export const TOOLS = [
   { id: 'mac-lookup', name: 'MAC Address Lookup', path: '/mac-lookup', icon: '💻', category: 'Network Tools', description: 'Find device manufacturer (OUI) by MAC Address' },
   { id: 'subnet-calc', name: 'IP Subnet Calculator', path: '/subnet-calc', icon: '🧮', category: 'Network Tools', description: 'Calculate IP ranges, networks, and broadcast addresses' },
   { id: 'port-scanner', name: 'Port Scanner', path: '/port-scanner', icon: '🚪', category: 'Network Tools', description: 'Scan public IP/Domain for open network ports' },
+  { id: 'ping-test', name: 'Global Ping Test', path: '/ping-test', icon: '⚡', category: 'Network Tools', description: 'Measure server latency and availability via TCP ping' },
+  { id: 'cron-parser', name: 'Cron Expression Parser', path: '/cron-parser', icon: '📆', category: 'Utility Tools', description: 'Translate cron strings and calculate next execution dates' },
+  { id: 'ssl-decoder', name: 'SSL/CSR Decoder', path: '/ssl-decoder', icon: '🎫', category: 'Utility Tools', description: 'Decode PEM SSL certificates to view issuer and validity' },
+  { id: 'diff-checker', name: 'Text Diff Checker', path: '/diff-checker', icon: '📜', category: 'Utility Tools', description: 'Compare two text pieces or code blocks to highlight changes' },
 ];
 
 export const RECORD_TYPES = [
