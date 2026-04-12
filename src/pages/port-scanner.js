@@ -21,7 +21,7 @@ export function renderPortScanner() {
       <!-- Notice -->
       <div style="padding:1rem;border-radius:var(--radius-md);background:var(--color-primary-light);border:1px solid rgba(59,130,246,0.3);margin-bottom:1.5rem">
         <p style="font-size:0.8125rem;color:var(--text-secondary);line-height:1.5;margin:0">
-          <strong style="color:var(--color-primary)">Note:</strong> This tool uses an external Nmap API proxy. It scans the most common top 20 TCP ports. Scanning may take up to <strong>15-20 seconds</strong> to complete if nodes are filtering packets.
+          <strong style="color:var(--color-primary)">Note:</strong> This tool uses our own serverless backend to scan the Top 20 TCP ports in real-time. Scanning takes up to <strong>3-4 seconds</strong>.
         </p>
       </div>
 
@@ -102,47 +102,24 @@ export function renderPortScanner() {
       btn.style.opacity = '0.7';
 
       try {
-        // We use HackerTarget's free Nmap port scanner API
-        // It provides a basic nmap text output.
-        const res = await fetch(`https://api.hackertarget.com/nmap/?q=${encodeURIComponent(host)}`);
-        if (!res.ok) throw new Error('API Error: ' + res.status);
-        
-        const text = await res.text();
-        
-        // Error handling from API limits
-        if (text.includes('error check your input') || text.includes('error')) {
-          throw new Error('Invalid host or API rate limit exceeded.');
+        // We use our new Vercel serverless function backend
+        const res = await fetch(`/api/scan?host=${encodeURIComponent(host)}`);
+        if (!res.ok) {
+          const errData = await res.json().catch(()=>({}));
+          throw new Error(errData.error || 'Server Error: ' + res.status);
         }
-
-        // Parsing nmap output
-        // typical line: "80/tcp open  http" or "443/tcp closed https"
-        const lines = text.split('\n');
-        const portRegex = /^(\d+)\/(tcp|udp)\s+([a-z|A-Z]+)\s+(.*)$/;
         
-        let scannedPorts = [];
+        const data = await res.json();
         
-        for (const line of lines) {
-          const match = line.match(portRegex);
-          if (match) {
-            scannedPorts.push({
-              port: match[1],
-              protocol: match[2].toUpperCase(),
-              state: match[3],
-              service: match[4] || 'unknown'
-            });
-          }
-        }
-
-        if (scannedPorts.length === 0) {
-          errorMsg.textContent = 'Scan completed, but no open/closed ports could be clearly identified. The host might be unreachable or blocking ping probes.';
+        if (!data.ports || data.ports.length === 0) {
+          errorMsg.textContent = 'Scan completed, but no ports were found.';
           errorDiv.style.display = 'block';
-          rawOutput.textContent = text;
           results.style.display = 'grid';
           loading.style.display = 'none';
         } else {
           // Render Table
           let html = '';
-          scannedPorts.forEach(p => {
+          data.ports.forEach(p => {
             const stateLower = p.state.toLowerCase();
             let stateStyle = 'color:var(--text-secondary)';
             let stateIcon = '⚪';
@@ -169,7 +146,7 @@ export function renderPortScanner() {
           });
           
           tbody.innerHTML = html;
-          rawOutput.textContent = text;
+          rawOutput.textContent = JSON.stringify(data, null, 2);
           targetDisplay.textContent = host;
           
           results.style.display = 'grid';
