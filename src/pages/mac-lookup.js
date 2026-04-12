@@ -165,32 +165,22 @@ export function renderMacLookup() {
       prefixEl.textContent = 'OUI Prefix: ' + standardFormat.substring(0, 8);
 
       try {
-        // We use MACVendors API as it allows CORS and is free without API key
-        // Using a CORS proxy to be absolutely safe (some adblockers block macvendors directly)
-        const response = await fetch(`https://api.macvendors.com/${standardFormat}`);
+        // We use our own Vercel Serverless proxy to bypass adblockers & CORS
+        const response = await fetch(`/api/mac?mac=${standardFormat}`);
         
-        if (response.ok) {
-          const vendor = await response.text();
-          vendorEl.textContent = vendor;
-        } else if (response.status === 404) {
-          vendorEl.textContent = 'Unknown / Not Found';
-          vendorEl.style.color = 'var(--text-secondary)';
-        } else {
-          // Fallback if API rate limited
-          vendorEl.textContent = 'Lookup Unavailable';
+        if (!response.ok) {
+          vendorEl.textContent = 'Server Error / Not Reachable';
           vendorEl.style.color = 'var(--color-error)';
+        } else {
+          const data = await response.json();
+          vendorEl.textContent = data.vendor || 'Unknown';
+          if (data.vendor === 'Unknown / Not Found') {
+            vendorEl.style.color = 'var(--text-secondary)';
+          }
         }
       } catch (e) {
-        // Failed to fetch (cors/adblocker)
-        try {
-          // Secondary fallback API
-          const res2 = await fetch(`https://mac-address.alldata.pt/api/${standardFormat}`);
-          const data = await res2.json();
-          vendorEl.textContent = data.vendor || 'Unknown Provider';
-        } catch(fallbackErr) {
-          vendorEl.textContent = 'Network Error (Try disabling adblock)';
-          vendorEl.style.color = 'var(--color-error)';
-        }
+        vendorEl.textContent = 'Network Error (Unreachable Backend)';
+        vendorEl.style.color = 'var(--color-error)';
       }
 
       loading.style.display = 'none';
