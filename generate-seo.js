@@ -12,7 +12,7 @@ const tools = [
   '/whois', '/domain-age', '/ip-geolocation', '/asn-lookup', '/ip-to-domain',
   '/http-headers', '/ssl-checker', '/website-status',
   '/my-ip', '/spf-dmarc', '/domain-health',
-  '/password-generator', '/base64', '/url-encode', '/json-formatter'
+  '/password-generator', '/2fa', '/base64', '/url-encode', '/json-formatter'
 ];
 
 let xml = `<?xml version="1.0" encoding="UTF-8"?>

@@ -8,10 +8,18 @@
     "build": "vite build",
     "preview": "vite preview"
   },
-  "keywords": ["dns", "network", "tools", "lookup"],
+  "keywords": [
+    "dns",
+    "network",
+    "tools",
+    "lookup"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "vite": "^8.0.8"
+  },
+  "dependencies": {
+    "otpauth": "^9.5.0"
   }
 }

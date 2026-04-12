@@ -21,6 +21,7 @@ export const TOOLS = [
   { id: 'spf-dmarc', name: 'SPF & DMARC Validator', path: '/spf-dmarc', icon: '✉️', category: 'DNS Tools', description: 'Validate SPF and DMARC email authentication' },
   { id: 'domain-health', name: 'Domain Health Score', path: '/domain-health', icon: '💯', category: 'Domain Intelligence', description: 'Comprehensive domain health grade (A-F)' },
   { id: 'password-generator', name: 'Password Generator', path: '/password-generator', icon: '🔑', category: 'Utility Tools', description: 'Generate strong random passwords' },
+  { id: '2fa', name: '2FA Generator', path: '/2fa', icon: '⏱️', category: 'Utility Tools', description: 'Generate Time-based OTPs from secrets' },
   { id: 'base64', name: 'Base64 Encode/Decode', path: '/base64', icon: '🔤', category: 'Utility Tools', description: 'Encode or decode Base64 strings' },
   { id: 'url-encode', name: 'URL Encode/Decode', path: '/url-encode', icon: '🔗', category: 'Utility Tools', description: 'Encode or decode URL strings' },
   { id: 'json-formatter', name: 'JSON Formatter', path: '/json-formatter', icon: '📐', category: 'Utility Tools', description: 'Format, validate, and minify JSON' },

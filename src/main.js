@@ -31,6 +31,7 @@ import { renderMyIp } from './pages/my-ip.js';
 import { renderSpfDmarc } from './pages/spf-dmarc.js';
 import { renderDomainHealth } from './pages/domain-health.js';
 import { renderPasswordGenerator } from './pages/password-generator.js';
+import { render2FAGenerator } from './pages/2fa-generator.js';
 import { renderBase64 } from './pages/base64.js';
 import { renderUrlEncode } from './pages/url-encode.js';
 import { renderJsonFormatter } from './pages/json-formatter.js';
@@ -69,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .add('/domain-health', renderDomainHealth)
     // Utility Tools
     .add('/password-generator', renderPasswordGenerator)
+    .add('/2fa', render2FAGenerator)
     .add('/base64', renderBase64)
     .add('/url-encode', renderUrlEncode)
     .add('/json-formatter', renderJsonFormatter);
