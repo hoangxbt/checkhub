@@ -1,0 +1,87 @@
+/* src/styles/layout.css */
+#app { display: flex; flex-direction: column; min-height: 100vh; }
+#main-content { flex: 1; padding-top: var(--navbar-height); }
+
+/* === Navbar === */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--navbar-height);
+  background: var(--bg-glass); backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border-bottom: 1px solid var(--border-color); z-index: 1000;
+  display: flex; align-items: center;
+}
+.navbar .container { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+.navbar-brand {
+  display: flex; align-items: center; gap: 0.75rem;
+  font-size: 1.25rem; font-weight: 700; color: var(--text-primary); text-decoration: none;
+}
+.navbar-brand svg { width: 32px; height: 32px; }
+.navbar-brand span {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.navbar-menu { display: flex; align-items: center; gap: 0.25rem; }
+.navbar-link {
+  padding: 0.5rem 1rem; border-radius: var(--radius-md); color: var(--text-secondary);
+  font-size: 0.875rem; font-weight: 500; transition: all var(--transition-fast);
+}
+.navbar-link:hover { color: var(--text-primary); background: var(--bg-surface-hover); }
+.navbar-link.active { color: var(--color-primary); background: var(--color-primary-light); }
+.navbar-dropdown { position: relative; }
+.navbar-dropdown-trigger {
+  display: flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem;
+  border-radius: var(--radius-md); color: var(--text-secondary);
+  font-size: 0.875rem; font-weight: 500; transition: all var(--transition-fast);
+}
+.navbar-dropdown-trigger:hover { color: var(--text-primary); background: var(--bg-surface-hover); }
+.navbar-dropdown-trigger svg { width: 16px; height: 16px; transition: transform var(--transition-fast); }
+.navbar-dropdown.open .navbar-dropdown-trigger svg { transform: rotate(180deg); }
+.navbar-dropdown-menu {
+  position: absolute; top: calc(100% + 0.5rem); left: 0; min-width: 220px;
+  background: var(--bg-surface); border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 0.5rem;
+  opacity: 0; visibility: hidden; transform: translateY(-8px);
+  transition: all var(--transition-fast); z-index: 1001;
+}
+.navbar-dropdown.open .navbar-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+.navbar-dropdown-item {
+  display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.875rem;
+  border-radius: var(--radius-md); color: var(--text-secondary);
+  font-size: 0.8125rem; transition: all var(--transition-fast); text-decoration: none;
+}
+.navbar-dropdown-item:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
+.navbar-dropdown-item .icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.navbar-actions { display: flex; align-items: center; gap: 0.5rem; }
+.navbar-kbd {
+  display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-sm); border: 1px solid var(--border-color);
+  background: var(--bg-surface); color: var(--text-tertiary);
+  font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: all var(--transition-fast);
+}
+.navbar-kbd:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.navbar-toggle { display: none; padding: 0.5rem; border-radius: var(--radius-md); color: var(--text-secondary); }
+
+@media (max-width: 768px) {
+  .navbar-menu {
+    display: none; position: absolute; top: var(--navbar-height); left: 0; right: 0;
+    background: var(--bg-surface); border-bottom: 1px solid var(--border-color);
+    flex-direction: column; padding: 1rem; box-shadow: var(--shadow-lg);
+  }
+  .navbar-menu.open { display: flex; }
+  .navbar-toggle { display: flex; }
+  .navbar-kbd { display: none; }
+}
+
+/* === Footer === */
+.footer { margin-top: auto; padding: 2rem 0; border-top: 1px solid var(--border-color); background: var(--bg-surface); }
+.footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.footer-links { display: flex; gap: 1.5rem; }
+.footer-links a { color: var(--text-secondary); font-size: 0.8125rem; }
+.footer-links a:hover { color: var(--text-primary); }
+.footer-copy { color: var(--text-tertiary); font-size: 0.8125rem; }
+
+/* === Page Sections === */
+.page-hero { padding: 3rem 0 2rem; text-align: center; }
+.page-hero h1 { font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.75rem; }
+.page-hero p { color: var(--text-secondary); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+.page-section { padding: 2rem 0; }

@@ -1,0 +1,22 @@
+[
+  { "name": "Google", "ip": "8.8.8.8", "country": "US", "city": "Mountain View", "lat": 37.386, "lon": -122.084, "provider": "Google LLC" },
+  { "name": "Google 2", "ip": "8.8.4.4", "country": "US", "city": "Mountain View", "lat": 37.386, "lon": -122.084, "provider": "Google LLC" },
+  { "name": "Cloudflare", "ip": "1.1.1.1", "country": "US", "city": "San Francisco", "lat": 37.774, "lon": -122.419, "provider": "Cloudflare Inc" },
+  { "name": "Cloudflare 2", "ip": "1.0.0.1", "country": "US", "city": "San Francisco", "lat": 37.774, "lon": -122.419, "provider": "Cloudflare Inc" },
+  { "name": "OpenDNS", "ip": "208.67.222.222", "country": "US", "city": "San Francisco", "lat": 37.774, "lon": -122.419, "provider": "Cisco OpenDNS" },
+  { "name": "Quad9", "ip": "9.9.9.9", "country": "US", "city": "Berkeley", "lat": 37.876, "lon": -122.259, "provider": "Quad9" },
+  { "name": "Comodo", "ip": "8.26.56.26", "country": "US", "city": "Newark", "lat": 40.735, "lon": -74.172, "provider": "Comodo Group" },
+  { "name": "Verisign", "ip": "64.6.64.6", "country": "US", "city": "Reston", "lat": 38.960, "lon": -77.357, "provider": "Verisign" },
+  { "name": "AdGuard", "ip": "94.140.14.14", "country": "CY", "city": "Limassol", "lat": 34.707, "lon": 33.022, "provider": "AdGuard" },
+  { "name": "CleanBrowsing", "ip": "185.228.168.168", "country": "US", "city": "Atlanta", "lat": 33.749, "lon": -84.390, "provider": "CleanBrowsing" },
+  { "name": "Yandex", "ip": "77.88.8.8", "country": "RU", "city": "Moscow", "lat": 55.751, "lon": 37.618, "provider": "Yandex LLC" },
+  { "name": "DNS.WATCH", "ip": "84.200.69.80", "country": "DE", "city": "Berlin", "lat": 52.520, "lon": 13.405, "provider": "DNS.WATCH" },
+  { "name": "Neustar", "ip": "156.154.70.1", "country": "US", "city": "Ashburn", "lat": 39.046, "lon": -77.491, "provider": "Neustar" },
+  { "name": "SafeDNS", "ip": "195.46.39.39", "country": "RU", "city": "St Petersburg", "lat": 59.934, "lon": 30.335, "provider": "SafeDNS" },
+  { "name": "DNS Japan", "ip": "203.141.139.247", "country": "JP", "city": "Tokyo", "lat": 35.689, "lon": 139.692, "provider": "IIJ" },
+  { "name": "DNS Brazil", "ip": "200.221.11.100", "country": "BR", "city": "Sao Paulo", "lat": -23.550, "lon": -46.633, "provider": "Telefonica Brasil" },
+  { "name": "DNS India", "ip": "49.50.76.81", "country": "IN", "city": "Mumbai", "lat": 19.076, "lon": 72.877, "provider": "TATA Comm" },
+  { "name": "DNS Singapore", "ip": "203.186.4.4", "country": "SG", "city": "Singapore", "lat": 1.352, "lon": 103.820, "provider": "SingNet" },
+  { "name": "DNS UK", "ip": "156.154.70.22", "country": "GB", "city": "London", "lat": 51.507, "lon": -0.128, "provider": "Neustar UK" },
+  { "name": "DNS Australia", "ip": "203.2.218.208", "country": "AU", "city": "Sydney", "lat": -33.868, "lon": 151.207, "provider": "Telstra" }
+]
