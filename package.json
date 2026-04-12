@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node generate-seo.js && vite build && node postbuild-seo.js",
     "preview": "vite preview"
   },
   "keywords": [
