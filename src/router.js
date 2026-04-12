@@ -1,4 +1,5 @@
-// src/router.js
+import { TOOLS } from './utils/constants.js';
+
 export class Router {
   constructor() {
     this.routes = new Map();
@@ -16,6 +17,18 @@ export class Router {
   resolve() {
     const path = window.location.pathname || '/';
     this.currentRoute = path;
+    
+    // SEO Dynamic Metadata
+    const toolMeta = Object.values(TOOLS).find(t => t.path === path);
+    if (toolMeta) {
+      const pageTitle = path === '/' ? 'CheckHub — Free DNS Checker & Network Tools' : `${toolMeta.name} — CheckHub`;
+      document.title = pageTitle;
+      document.querySelector('meta[name="description"]')?.setAttribute('content', toolMeta.description);
+      document.querySelector('meta[property="og:title"]')?.setAttribute('content', pageTitle);
+      document.querySelector('meta[property="og:description"]')?.setAttribute('content', toolMeta.description);
+      document.querySelector('meta[property="og:url"]')?.setAttribute('content', `https://checkhub.org${path}`);
+    }
+
     let handler = this.routes.get(path);
     if (!handler) {
       for (const [routePath, routeHandler] of this.routes) {
