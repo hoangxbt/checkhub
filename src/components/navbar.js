@@ -4,7 +4,7 @@ import { TOOLS } from '../utils/constants.js';
 
 const CHEVRON_DOWN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
 const MENU_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`;
-const LOGO_ICON = `<svg viewBox="0 0 32 32" width="32" height="32"><defs><linearGradient id="logo-g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs><circle cx="16" cy="16" r="14" fill="url(#logo-g)"/><text x="16" y="21" text-anchor="middle" fill="white" font-family="Inter,Arial" font-weight="bold" font-size="14">D</text></svg>`;
+const LOGO_ICON = `<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="ch-g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#0284c7"/></linearGradient></defs><rect width="32" height="32" rx="10" fill="url(#ch-g)"/><path d="M9.5 16.5L14 21L22.5 11" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`;
 
 function createDropdown(categoryName, tools) {
   return `<div class="navbar-dropdown">
