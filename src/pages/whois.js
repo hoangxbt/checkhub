@@ -243,6 +243,13 @@ function renderWhoisResults(data, domain, container) {
   if (events.expiration) regFields.push({ label: 'Expires', value: formatDate(events.expiration), icon: '⏳' });
   if (events['last update of RDAP database']) regFields.push({ label: 'RDAP DB Updated', value: formatDate(events['last update of RDAP database']), icon: '🗃️' });
   if (data.handle && data.handle !== '—') regFields.push({ label: 'Registry Domain ID', value: data.handle, icon: '🆔' });
+  if (data.status && data.status.length > 0) {
+    regFields.push({ 
+      label: 'Domain Status', 
+      value: `<div style="display:flex;flex-direction:column;gap:4px">${data.status.map(s => `<span>${s}</span>`).join('')}</div>`, 
+      icon: '🚥' 
+    });
+  }
   if (data.port43) regFields.push({ label: 'WHOIS Server', value: data.port43, icon: '🖥️' });
 
   // DNSSEC
