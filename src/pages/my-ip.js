@@ -20,17 +20,17 @@ export function renderMyIp() {
 
 function getFlagEmoji(code) {
   if (!code) return '🌐';
-  return String.fromCodePoint(...[...code.toUpperCase()].map(c => 0x1F1E6 - 65 + c.charCodeAt(0)));
+  return String.fromCodePoint(...[...code.toUpperCase()].map((c) => 0x1F1E6 - 65 + c.charCodeAt(0)));
 }
 
 async function loadMyIp(container) {
   try {
-    let data = cacheGet('myip2');
+    let data = cacheGet('myip3');
     if (!data) {
-      // Try ipapi.co first (HTTPS, 1000 req/day), ip-api.com as fallback
       let geoData = null;
+
       try {
-        const res = await fetch('https://ipapi.co/json/');
+        const res = await fetch('/api/my-ip');
         if (res.ok) {
           const json = await res.json();
           if (!json.error) geoData = json;
@@ -39,27 +39,12 @@ async function loadMyIp(container) {
 
       if (!geoData) {
         try {
-          const res = await fetch('http://ip-api.com/json/?fields=status,query,country,countryCode,regionName,city,zip,lat,lon,timezone,isp,org,as,asname');
-          const json = await res.json();
-          if (json.status === 'success') {
-            geoData = {
-              ip: json.query, city: json.city, region: json.regionName,
-              country_name: json.country, country_code: json.countryCode,
-              postal: json.zip, latitude: json.lat, longitude: json.lon,
-              timezone: json.timezone, org: json.org || json.isp,
-              asn: json.as, hostname: json.asname || '—',
-            };
-          }
-        } catch {}
-      }
-
-      if (!geoData) {
-        // Last resort: at least get the IP
-        try {
           const ipRes = await fetch('https://api.ipify.org?format=json');
           const ipJson = await ipRes.json();
           geoData = { ip: ipJson.ip };
-        } catch { geoData = {}; }
+        } catch {
+          geoData = {};
+        }
       }
 
       data = {
@@ -79,12 +64,11 @@ async function loadMyIp(container) {
         currency: geoData.currency || '—',
         languages: geoData.languages || '—',
       };
-      cacheSet('myip2', data, 300000);
+      cacheSet('myip3', data, 300000);
     }
 
     container.innerHTML = '';
 
-    // Big IP Card
     const ipCard = document.createElement('div');
     ipCard.className = 'animate-fade-in';
     ipCard.style.cssText = 'text-align:center;padding:3rem 2rem;margin-bottom:2rem;border-radius:var(--radius-xl);background:linear-gradient(135deg,var(--color-primary),var(--color-accent));position:relative;overflow:hidden;box-shadow:0 20px 60px -12px rgba(37,99,235,0.4)';
@@ -102,11 +86,9 @@ async function loadMyIp(container) {
       </div>`;
     container.appendChild(ipCard);
 
-    // Click to copy
     const ipDisplay = ipCard.querySelector('#my-ip-display');
     makeClickToCopy(ipDisplay, data.ip);
 
-    // Details grid
     const details = [
       { icon: '🌍', label: 'Location', value: `${data.city}, ${data.region}, ${data.country}` },
       { icon: '📮', label: 'Postal Code', value: data.postal },
@@ -122,7 +104,7 @@ async function loadMyIp(container) {
     const grid = document.createElement('div');
     grid.className = 'animate-fade-in';
     grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:2rem';
-    grid.innerHTML = details.map(d => `
+    grid.innerHTML = details.map((d) => `
       <div style="padding:1rem 1.25rem;border-radius:var(--radius-lg);background:var(--bg-surface);border:1px solid var(--border-color);display:flex;align-items:center;gap:1rem;transition:transform 0.15s,box-shadow 0.15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
         <span style="font-size:1.5rem;flex-shrink:0">${d.icon}</span>
         <div style="min-width:0">
@@ -131,9 +113,8 @@ async function loadMyIp(container) {
         </div>
       </div>`).join('');
     container.appendChild(grid);
-    grid.querySelectorAll('.ip-value').forEach(el => makeClickToCopy(el, el.textContent));
+    grid.querySelectorAll('.ip-value').forEach((el) => makeClickToCopy(el, el.textContent));
 
-    // Map
     if (data.lat && data.lon) {
       const mapDiv = document.createElement('div');
       mapDiv.className = 'animate-fade-in';

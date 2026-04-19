@@ -1,4 +1,6 @@
-import net from 'net';
+import net from 'node:net';
+
+import { LOCAL_HOST_ERROR, resolvePublicTarget } from './_lib/network.js';
 
 const COMMON_PORTS = [
   { p: 21, svc: 'ftp' }, { p: 22, svc: 'ssh' }, { p: 23, svc: 'telnet' },
@@ -54,23 +56,26 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const host = req.query.host;
-  
-  // Basic validation to prevent obvious abuse or local network mapping
-  if (!host || host.match(/^(127\.|192\.168\.|10\.|172\.1[6-9]\.|172\.2[0-9]\.|172\.3[0-1]\.)/)) {
-    return res.status(400).json({ error: 'Invalid or local host parameter' });
-  }
-
   try {
+    const target = await resolvePublicTarget(req.query.host);
+
     // Scan top 20 ports in parallel with a 3.5-second timeout
     const promises = COMMON_PORTS.map(async (cp) => {
-      const state = await checkPort(host, cp.p, 3500);
+      const state = await checkPort(target.address, cp.p, 3500);
       return { port: cp.p, protocol: 'TCP', service: cp.svc, state };
     });
 
     const results = await Promise.all(promises);
-    return res.status(200).json({ host, ports: results });
+    return res.status(200).json({
+      host: target.hostname,
+      resolvedAddress: target.address,
+      ports: results,
+    });
   } catch (err) {
+    if (err.message === LOCAL_HOST_ERROR || err.message === 'Could not resolve host') {
+      return res.status(400).json({ error: err.message });
+    }
+
     return res.status(500).json({ error: 'Internal server error while scanning' });
   }
 }

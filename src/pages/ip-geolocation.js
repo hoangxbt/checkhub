@@ -51,7 +51,8 @@ async function runGeoLookup(query, container) {
     const cacheKey = `geo:${ip}`;
     let data = cacheGet(cacheKey);
     if (!data) {
-      const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,message,country,countryCode,regionName,city,lat,lon,isp,org,as,asname,timezone,query`);
+      const response = await fetch(`/api/ip-geo?ip=${encodeURIComponent(ip)}`);
+      if (!response.ok) throw new Error(`Geolocation lookup failed (${response.status})`);
       data = await response.json();
       if (data.status === 'fail') throw new Error(data.message || 'Geolocation lookup failed');
       cacheSet(cacheKey, data, 3600000);

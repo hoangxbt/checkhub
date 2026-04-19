@@ -34,24 +34,25 @@ async function runStatusCheck(url, container) {
   container.innerHTML = '';
   container.appendChild(createTableSkeleton(3, 2));
   try {
-    const startTime = performance.now();
     let status = 'unknown', statusText = '', responseTime = 0;
+    const response = await fetch(`/api/status?url=${encodeURIComponent(url)}`);
+    const data = await response.json();
 
-    try {
-      const response = await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: AbortSignal.timeout(10000) });
-      responseTime = Math.round(performance.now() - startTime);
-      // no-cors returns opaque response, but if it doesn't throw, the server responded
-      status = response.type === 'opaque' ? 'up' : (response.ok ? 'up' : 'down');
-      statusText = response.type === 'opaque' ? 'Reachable (CORS restricted)' : `${response.status} ${response.statusText}`;
-    } catch (err) {
-      responseTime = Math.round(performance.now() - startTime);
-      if (err.name === 'AbortError' || err.name === 'TimeoutError') {
-        status = 'timeout';
-        statusText = 'Request timed out (>10s)';
-      } else {
-        status = 'down';
-        statusText = err.message;
-      }
+    if (!response.ok) {
+      throw new Error(data.error || `Status check failed (${response.status})`);
+    }
+
+    responseTime = data.responseTime || 0;
+
+    if (data.reachable) {
+      status = data.statusCode >= 200 && data.statusCode < 400 ? 'up' : 'down';
+      statusText = `${data.statusCode} ${data.statusText || ''}`.trim();
+    } else if (data.timedOut) {
+      status = 'timeout';
+      statusText = data.error || 'Request timed out (>10s)';
+    } else {
+      status = 'down';
+      statusText = data.error || 'Could not reach target';
     }
 
     container.innerHTML = '';

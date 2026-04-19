@@ -28,24 +28,11 @@ export async function queryCloudflareDNS(domain, type = 'A') {
   return data;
 }
 
-export async function checkPropagation(domain, type = 'A', servers) {
-  const results = await Promise.allSettled(
-    servers.map(async (server) => {
-      const startTime = performance.now();
-      try {
-        const url = `${GOOGLE_DOH}?name=${encodeURIComponent(domain)}&type=${type}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        const responseTime = Math.round(performance.now() - startTime);
-        const answers = data.Answer || [];
-        const ips = answers.filter(a => a.type === getTypeNumber(type) || type === 'ANY').map(a => a.data);
-        return { server, status: ips.length > 0 ? 'resolved' : 'not-resolved', ips, responseTime, ttl: answers[0]?.TTL || null };
-      } catch (error) {
-        return { server, status: 'error', ips: [], responseTime: Math.round(performance.now() - startTime), error: error.message };
-      }
-    })
-  );
-  return results.map(r => r.status === 'fulfilled' ? r.value : { server: {}, status: 'error', ips: [], responseTime: 0, error: 'Unknown error' });
+export async function checkPropagation(domain, type = 'A') {
+  const response = await fetch(`/api/dns-propagation?domain=${encodeURIComponent(domain)}&type=${encodeURIComponent(type)}`);
+  if (!response.ok) throw new Error(`Propagation check failed: ${response.status}`);
+  const data = await response.json();
+  return Array.isArray(data.results) ? data.results : [];
 }
 
 export async function dnsLookup(domain, type = 'A') {
