@@ -2,7 +2,12 @@
 import { createSearchBar } from '../components/search-bar.js';
 import { createTableSkeleton } from '../components/loading-skeleton.js';
 import { makeClickToCopy } from '../components/copy-button.js';
-import { cacheGet, cacheSet } from '../utils/cache.js';
+import { fetchWhois, WhoisLookupError } from '../services/whois-api.js';
+import {
+  buildDomainNotFoundState,
+  buildRdapNoDataState,
+  buildWhoisUnavailableState,
+} from '../utils/rdap.js';
 
 export function renderWhois() {
   const page = document.createElement('div');
@@ -33,38 +38,43 @@ async function runWhois(domain, container) {
   container.innerHTML = '';
   container.appendChild(createTableSkeleton(10, 2));
   try {
-    const cacheKey = `whois2:${domain}`;  // v2 key to avoid stale cache from old format
-    let parsed = cacheGet(cacheKey);
-
-    if (!parsed) {
-      // Primary: RDAP protocol (standardized, free, no key needed)
-      const rdapUrl = `https://rdap.org/domain/${encodeURIComponent(domain)}`;
-      const response = await fetch(rdapUrl);
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          container.innerHTML = `<div class="animate-fade-in" style="text-align:center;padding:3rem">
-            <div style="font-size:3rem;margin-bottom:0.75rem">🔍</div>
-            <h2 style="font-size:1.25rem;font-weight:700;color:var(--text-primary)">Domain Not Found</h2>
-            <p style="color:var(--text-secondary);margin-top:0.5rem">No WHOIS data found for <strong>${domain}</strong>. The domain may not be registered.</p></div>`;
-          return;
-        }
-        throw new Error(`RDAP lookup failed (${response.status})`);
-      }
-
-      const rdap = await response.json();
-      parsed = parseRDAPResponse(rdap, domain);
-      cacheSet(cacheKey, parsed, 3600000); // 1 hour cache
-    }
-
+    const parsed = await fetchWhois(domain);
     container.innerHTML = '';
     renderWhoisResults(parsed, domain, container);
   } catch (error) {
+    if (error instanceof WhoisLookupError) {
+      if (error.code === 'not_registered') {
+        renderWhoisState(container, buildDomainNotFoundState(domain));
+        return;
+      }
+
+      if (error.code === 'provider_no_data') {
+        const state = error.provider === 'rdap'
+          ? buildRdapNoDataState(domain)
+          : buildWhoisUnavailableState(domain, error.provider);
+        renderWhoisState(container, state);
+        return;
+      }
+
+      if (error.provider) {
+        renderWhoisState(container, buildWhoisUnavailableState(domain, error.provider));
+        return;
+      }
+    }
+
     container.innerHTML = `<div class="animate-fade-in" style="text-align:center;padding:3rem;color:var(--color-error)">
       <p style="font-weight:600">WHOIS Lookup Failed</p>
       <p style="margin-top:0.5rem;color:var(--text-secondary)">${error.message}</p>
-      <p style="margin-top:0.5rem;color:var(--text-tertiary);font-size:0.8125rem">RDAP servers may be temporarily unavailable. Try again in a moment.</p></div>`;
+      <p style="margin-top:0.5rem;color:var(--text-tertiary);font-size:0.8125rem">The WHOIS provider may be temporarily unavailable. Try again in a moment.</p></div>`;
   }
+}
+
+function renderWhoisState(container, state) {
+  container.innerHTML = `<div class="animate-fade-in" style="text-align:center;padding:3rem">
+    <div style="font-size:3rem;margin-bottom:0.75rem">Info</div>
+    <h2 style="font-size:1.25rem;font-weight:700;color:var(--text-primary)">${state.title}</h2>
+    <p style="color:var(--text-secondary);margin-top:0.5rem">${state.message}</p>
+    ${state.hint ? `<p style="color:var(--text-tertiary);margin-top:0.75rem;font-size:0.875rem">${state.hint}</p>` : ''}</div>`;
 }
 
 function parseRDAPResponse(rdap, domain) {

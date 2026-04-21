@@ -1,7 +1,12 @@
 // src/pages/domain-age.js
 import { createSearchBar } from '../components/search-bar.js';
 import { createTableSkeleton } from '../components/loading-skeleton.js';
-import { cacheGet, cacheSet } from '../utils/cache.js';
+import { fetchWhois, WhoisLookupError } from '../services/whois-api.js';
+import {
+  buildDomainNotFoundState,
+  buildRdapNoDataState,
+  buildWhoisUnavailableState,
+} from '../utils/rdap.js';
 
 export function renderDomainAge() {
   const page = document.createElement('div');
@@ -32,17 +37,13 @@ async function runDomainAge(domain, container) {
   container.innerHTML = '';
   container.appendChild(createTableSkeleton(4, 2));
   try {
-    const cacheKey = `whois:${domain}`;
-    let data = cacheGet(cacheKey);
-    if (!data) {
-      const rdap = await fetch(`https://rdap.org/domain/${encodeURIComponent(domain)}`);
-      if (!rdap.ok) throw new Error('Could not fetch domain info.');
-      const json = await rdap.json();
-      const events = json.events || [];
-      const getEvent = (action) => (events.find(e => e.eventAction === action) || {}).eventDate;
-      data = { creation_date: getEvent('registration'), expiration_date: getEvent('expiration'), updated_date: getEvent('last changed') };
-      cacheSet(cacheKey, data, 3600000);
-    }
+    const whois = await fetchWhois(domain);
+    const events = whois.events || {};
+    const data = {
+      creation_date: events.registration || null,
+      expiration_date: events.expiration || null,
+      updated_date: events['last changed'] || null,
+    };
 
     container.innerHTML = '';
     const created = data.creation_date ? new Date(data.creation_date) : null;
@@ -88,6 +89,34 @@ async function runDomainAge(domain, container) {
       </tbody></table>`;
     container.appendChild(wrapper);
   } catch (error) {
+    if (error instanceof WhoisLookupError) {
+      if (error.code === 'not_registered') {
+        renderDomainAgeState(container, buildDomainNotFoundState(domain));
+        return;
+      }
+
+      if (error.code === 'provider_no_data') {
+        const state = error.provider === 'rdap'
+          ? buildRdapNoDataState(domain)
+          : buildWhoisUnavailableState(domain, error.provider);
+        renderDomainAgeState(container, state);
+        return;
+      }
+
+      if (error.provider) {
+        renderDomainAgeState(container, buildWhoisUnavailableState(domain, error.provider));
+        return;
+      }
+    }
+
     container.innerHTML = `<div class="animate-fade-in" style="text-align:center;padding:3rem;color:var(--color-error)"><p style="font-weight:600">Lookup Failed</p><p style="margin-top:0.5rem;color:var(--text-secondary)">${error.message}</p></div>`;
   }
+}
+
+function renderDomainAgeState(container, state) {
+  container.innerHTML = `<div class="animate-fade-in" style="text-align:center;padding:3rem">
+    <p style="font-weight:600;color:var(--text-primary)">${state.title}</p>
+    <p style="margin-top:0.5rem;color:var(--text-secondary)">${state.message}</p>
+    ${state.hint ? `<p style="margin-top:0.75rem;color:var(--text-tertiary);font-size:0.875rem">${state.hint}</p>` : ''}
+  </div>`;
 }
