@@ -1,11 +1,19 @@
 import https from 'node:https';
+import net from 'node:net';
 
 const VN_WHOIS_URL = 'https://tracuutenmien.gov.vn/tra-cuu-thong-tin-ten-mien';
 const RDAP_URL_PREFIX = 'https://rdap.org/domain/';
+const US_WHOIS_HOST = 'whois.nic.us';
+const WHOIS_PORT = 43;
+const WHOIS_TIMEOUT_MS = 15000;
 
 export async function lookupWhois(domain, fetchImpl = fetch) {
   if (domain.toLowerCase().endsWith('.vn')) {
     return lookupVnWhois(domain, fetchImpl);
+  }
+
+  if (domain.toLowerCase().endsWith('.us')) {
+    return lookupUsWhois(domain);
   }
 
   return lookupRdapWhois(domain, fetchImpl);
@@ -108,6 +116,153 @@ async function lookupRdapWhois(domain, fetchImpl) {
   return {
     kind: 'record',
     data: parseRdapResponse(rdap, domain),
+  };
+}
+
+async function lookupUsWhois(domain) {
+  try {
+    const rawWhois = await queryUsWhois(domain);
+    return parseUsWhoisText(rawWhois, domain);
+  } catch (error) {
+    return {
+      kind: 'error',
+      status: 502,
+      code: 'provider_error',
+      provider: US_WHOIS_HOST,
+      error: `WHOIS lookup failed (${error.message || 'network error'})`,
+    };
+  }
+}
+
+function queryUsWhois(domain) {
+  return new Promise((resolve, reject) => {
+    let responseText = '';
+    let settled = false;
+
+    const socket = net.createConnection(
+      { host: US_WHOIS_HOST, port: WHOIS_PORT },
+      () => {
+        socket.setEncoding('utf8');
+        socket.write(`${domain}\r\n`);
+      },
+    );
+
+    function finish(error, value) {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+
+      if (error) {
+        socket.destroy();
+        reject(error);
+        return;
+      }
+
+      resolve(value);
+    }
+
+    socket.setTimeout(WHOIS_TIMEOUT_MS);
+    socket.on('data', (chunk) => {
+      responseText += chunk;
+    });
+    socket.on('end', () => {
+      finish(null, responseText);
+    });
+    socket.on('timeout', () => {
+      finish(new Error('timed out'));
+    });
+    socket.on('error', (error) => {
+      finish(error);
+    });
+  });
+}
+
+function parseUsWhoisText(text, domain) {
+  const databaseUpdate = extractUsWhoisDatabaseUpdate(text);
+
+  if (/^No Data Found$/mi.test(text)) {
+    return {
+      kind: 'not_found',
+      status: 404,
+      code: 'not_registered',
+      provider: US_WHOIS_HOST,
+      error: `No registration record was returned for ${domain}`,
+      ...(databaseUpdate ? { lastDatabaseUpdate: databaseUpdate } : {}),
+    };
+  }
+
+  const fields = collectWhoisFields(text);
+  const domainName = (firstFieldValue(fields, 'Domain Name') || domain).toLowerCase();
+  const handle = firstFieldValue(fields, 'Registry Domain ID');
+  const registrarName = firstFieldValue(fields, 'Registrar');
+  const registrarUrl = firstFieldValue(fields, 'Registrar URL');
+  const registrarIanaId = firstFieldValue(fields, 'Registrar IANA ID');
+  const registrarAbuseEmail = firstFieldValue(fields, 'Registrar Abuse Contact Email');
+  const registrarAbusePhone = firstFieldValue(fields, 'Registrar Abuse Contact Phone');
+  const registrantAddress = joinAddressParts([
+    firstFieldValue(fields, 'Registrant Street'),
+    firstFieldValue(fields, 'Registrant Street1'),
+    firstFieldValue(fields, 'Registrant Street2'),
+    firstFieldValue(fields, 'Registrant Street3'),
+    firstFieldValue(fields, 'Registrant City'),
+    firstFieldValue(fields, 'Registrant State/Province'),
+    firstFieldValue(fields, 'Registrant Postal Code'),
+    firstFieldValue(fields, 'Registrant Country'),
+  ]);
+  const dnssec = firstFieldValue(fields, 'DNSSEC');
+  const nameservers = (fields.get('Name Server') || []).map((name) => ({
+    name,
+    v4: [],
+    v6: [],
+  }));
+
+  return {
+    kind: 'record',
+    data: {
+      provider: US_WHOIS_HOST,
+      domainName,
+      handle: handle || null,
+      status: (fields.get('Domain Status') || []).map((value) => value.replace(/\s+https?:\/\/\S+$/i, '').trim()),
+      events: {
+        ...(firstFieldValue(fields, 'Creation Date') ? { registration: firstFieldValue(fields, 'Creation Date') } : {}),
+        ...(firstFieldValue(fields, 'Registry Expiry Date') ? { expiration: firstFieldValue(fields, 'Registry Expiry Date') } : {}),
+        ...(firstFieldValue(fields, 'Updated Date') ? { 'last changed': firstFieldValue(fields, 'Updated Date') } : {}),
+        ...(databaseUpdate ? { 'last update of RDAP database': databaseUpdate } : {}),
+      },
+      nameservers,
+      registrar: (registrarName || registrarUrl || registrarIanaId || registrarAbuseEmail || registrarAbusePhone) ? {
+        name: registrarName || null,
+        org: null,
+        email: null,
+        phone: null,
+        address: null,
+        url: registrarUrl || null,
+        handle: null,
+        ianaId: registrarIanaId || null,
+        abuseEmail: registrarAbuseEmail || null,
+        abusePhone: registrarAbusePhone || null,
+      } : null,
+      registrant: {
+        name: firstFieldValue(fields, 'Registrant Name') || null,
+        org: firstFieldValue(fields, 'Registrant Organization') || null,
+        email: firstFieldValue(fields, 'Registrant Email') || null,
+        phone: firstFieldValue(fields, 'Registrant Phone') || null,
+        address: registrantAddress,
+        url: null,
+        handle: null,
+      },
+      secureDNS: dnssec ? {
+        delegationSigned: /signeddelegation/i.test(dnssec),
+        zoneSigned: false,
+      } : null,
+      port43: US_WHOIS_HOST,
+      links: [
+        { rel: 'source', href: `whois://${US_WHOIS_HOST}`, type: 'text/plain' },
+      ],
+      rawEntities: [],
+    },
   };
 }
 
@@ -380,4 +535,42 @@ function foldText(value) {
     .replace(/\p{Mark}+/gu, '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function collectWhoisFields(text) {
+  const fields = new Map();
+
+  text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .forEach((line) => {
+      const match = line.match(/^([^:]+):\s*(.*)$/);
+      if (!match) {
+        return;
+      }
+
+      const [, rawName, rawValue] = match;
+      const name = rawName.trim();
+      const value = rawValue.trim();
+      const existing = fields.get(name) || [];
+      existing.push(value);
+      fields.set(name, existing);
+    });
+
+  return fields;
+}
+
+function firstFieldValue(fields, name) {
+  return fields.get(name)?.[0] || null;
+}
+
+function extractUsWhoisDatabaseUpdate(text) {
+  const match = text.match(/>>> Last update of WHOIS database:\s*([^\r\n<]+?)\s*<</i);
+  return match ? match[1].trim() : null;
+}
+
+function joinAddressParts(parts) {
+  const values = parts.filter(Boolean);
+  return values.length > 0 ? values.join(', ') : null;
 }
