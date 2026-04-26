@@ -2,7 +2,7 @@
 import { createSearchBar } from '../components/search-bar.js';
 import { createTableSkeleton } from '../components/loading-skeleton.js';
 import { makeClickToCopy } from '../components/copy-button.js';
-import { queryCloudflareDNS } from '../services/dns-api.js';
+import { cacheGet, cacheSet } from '../utils/cache.js';
 import { isValidIP } from '../utils/validators.js';
 import { showToast } from '../components/toast.js';
 
@@ -36,34 +36,51 @@ async function runIpToDomain(ip, container) {
   container.innerHTML = '';
   container.appendChild(createTableSkeleton(5, 2));
   try {
-    const parts = ip.split('.').reverse();
-    const ptrDomain = parts.join('.') + '.in-addr.arpa';
-    const data = await queryCloudflareDNS(ptrDomain, 'PTR');
-    const answers = data.Answer || [];
+    const cacheKey = `ip-to-domain:${ip}`;
+    let data = cacheGet(cacheKey);
+
+    if (!data) {
+      const response = await fetch(`/api/ip-to-domain?ip=${encodeURIComponent(ip)}`);
+      let payload = null;
+
+      try {
+        payload = await response.json();
+      } catch {
+        payload = null;
+      }
+
+      if (!response.ok) {
+        throw new Error(payload?.error || `Reverse IP lookup failed (${response.status})`);
+      }
+
+      data = payload;
+      cacheSet(cacheKey, data, 3600000);
+    }
+
+    const domains = Array.isArray(data.domains) ? data.domains : [];
 
     container.innerHTML = '';
 
     const info = document.createElement('div');
     info.className = 'animate-fade-in';
     info.style.cssText = 'margin-bottom:1rem;font-size:0.875rem;color:var(--text-secondary)';
-    info.innerHTML = `IP: <strong style="color:var(--text-primary)">${ip}</strong> · Domains found: <strong style="color:var(--color-primary)">${answers.length}</strong>`;
+    info.innerHTML = `IP: <strong style="color:var(--text-primary)">${ip}</strong> - Domains found: <strong style="color:var(--color-primary)">${domains.length}</strong>`;
     container.appendChild(info);
 
-    if (answers.length === 0) {
+    if (domains.length === 0) {
       container.innerHTML += `<div class="animate-fade-in" style="text-align:center;padding:2rem;color:var(--text-secondary)">
-        <p>No reverse DNS records found for <strong>${ip}</strong></p>
-        <p style="margin-top:0.5rem;font-size:0.8125rem;color:var(--text-tertiary)">This IP may not have PTR records configured or may host domains without reverse DNS.</p></div>`;
+        <p>No hosted domains found for <strong>${ip}</strong></p>
+        <p style="margin-top:0.5rem;font-size:0.8125rem;color:var(--text-tertiary)">The provider may not have indexed domains for this IP, or the IP may not host public websites.</p></div>`;
       return;
     }
 
     const wrapper = document.createElement('div');
     wrapper.className = 'results-table-wrapper animate-fade-in';
     wrapper.innerHTML = `<table class="results-table">
-      <thead><tr><th>#</th><th>Domain / Hostname</th><th>TTL</th></tr></thead>
-      <tbody class="animate-stagger">${answers.map((a, i) => `<tr>
+      <thead><tr><th>#</th><th>Domain</th></tr></thead>
+      <tbody class="animate-stagger">${domains.map((domain, i) => `<tr>
         <td>${i + 1}</td>
-        <td><span class="ip-value">${a.data}</span></td>
-        <td>${a.TTL}</td>
+        <td><span class="ip-value">${domain}</span></td>
       </tr>`).join('')}</tbody></table>`;
     container.appendChild(wrapper);
     wrapper.querySelectorAll('.ip-value').forEach(el => makeClickToCopy(el, el.textContent));
